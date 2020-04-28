@@ -1,0 +1,40 @@
+version: '3.3'
+
+services:
+
+    nginx:
+        build:
+           context: ./nginx
+           dockerfile: Dockerfile
+        ports:
+            - '1235:1935'
+            - '1234:80'
+        volumes:
+            - './nginx/html:/usr/local/nginx/html'
+            - 'dash:/opt/dash'
+        restart: unless-stopped
+        networks:
+            - backend
+
+    php:
+        image: php:7-fpm
+        volumes:
+            - './nginx/html:/usr/local/nginx/html'
+            - 'dash:/opt/dash'
+        networks:
+            - backend
+
+    alpine-init:
+        build:
+           context: ./alpine
+           dockerfile: Dockerfile
+        volumes:
+            - 'dash:/opt/dash'
+        restart: "no"
+
+volumes:
+    dash:
+
+networks:
+    backend:
+    
