@@ -7,12 +7,16 @@ services:
            context: ./nginx
            dockerfile: Dockerfile
         ports:
-            - '1235:1935'
-            - '1234:80'
+            - '1935:1935'
+            - '127.0.0.1:1234:80'
         volumes:
             - './nginx/html:/usr/local/nginx/html'
             - 'dash:/opt/dash'
+            - 'uploads:/opt/uploads'
         restart: unless-stopped
+        depends_on:
+            - nodejs
+            - php
         networks:
             - backend
 
@@ -21,19 +25,29 @@ services:
         volumes:
             - './nginx/html:/usr/local/nginx/html'
             - 'dash:/opt/dash'
+            - 'uploads:/opt/uploads'
         networks:
             - backend
 
+    nodejs:
+        build:
+            context: ./nodejs
+            dockerfile: Dockerfile
+        networks:
+            - backend
+    
     alpine-init:
         build:
            context: ./alpine
            dockerfile: Dockerfile
         volumes:
             - 'dash:/opt/dash'
+            - 'uploads:/opt/uploads'
         restart: "no"
 
 volumes:
     dash:
+    uploads:
 
 networks:
     backend:

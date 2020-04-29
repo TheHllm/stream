@@ -1,7 +1,6 @@
 <?php
     ob_start();
 ?>
-<!DOCTYPE html>
 <html>
 
 <head>
@@ -55,7 +54,7 @@
                 
             </video>
 
-            <script src="http://cdn.dashjs.org/latest/dash.all.min.js"></script>
+            <script src="/assets/js/dash.all.min.js"></script>
             <script>
                 
                 var url = "/list/<?php echo filter_var($name, FILTER_SANITIZE_ENCODED);?>";
@@ -77,3 +76,4 @@
 
         </div>
 </body>
+</html>

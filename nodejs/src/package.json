@@ -1,0 +1,14 @@
+{
+  "name": "watch2gether",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "author": "TheHllm",
+  "license": "ISC",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^7.2.5"
+  }
+}
