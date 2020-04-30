@@ -1,7 +1,8 @@
 var video;
 var ws;
 var videoId;
-var ignoreStateChange = false;
+var ignoreNextStateChange = false;
+var ignoreNextStateChangeResetTimeout;
 
 
 function getVideoState(){
@@ -14,31 +15,30 @@ function getVideoState(){
 }
 
 function setVideoState(data){
-    ignoreStateChange = true;
-    setTimeout(function (){
+    clearTimeout(ignoreNextStateChangeResetTimeout);
+    ignoreNextStateChange = true;
+    console.log("setting state ignore:" + ignoreNextStateChange);
     video.playbackRate = data.playbackRate;
-    var time = data.time + ((new Date().getTime()) - data.starttime)/1000 * data.playbackRate * (data.paused ? 0 : 1);
+    var time = data.time + ((new Date().getTime()) - data.starttime)/1000 * data.playbackRate * (data.paused ? 0 : 1) + 1; //add 1 second to compensate for latency and loading times
     
     video.currentTime = time;
     if(data.paused){
-        console.log("pause");
         video.pause();
     }else{
-        console.log("play");
         video.play();
     }
-
-    },100);
-
-
-    setTimeout(function (){ignoreStateChange = false}, 200);
     
 }
 
 
-function onStateChange(){
-    if(ignoreStateChange === false){
-        console.log("stateChanged");
+function onStateChange(e){
+    if(ignoreNextStateChange){
+        clearTimeout(ignoreNextStateChangeResetTimeout);
+        ignoreNextStateChangeResetTimeout = setTimeout(function (){ignoreNextStateChange = false}, 500); // wait a bit before resetting this since one state change can trigger up to 4 events.
+        console.log("resting ignore...");
+    }else if(ws.readyState === 1){
+        console.log(e);
+        console.log("onStateChanged... sending message");
 
         //send video state
         var message = {
@@ -49,8 +49,9 @@ function onStateChange(){
     }
 }
 
-function onMessage(data){
+function onMessage(data){   
     var message = JSON.parse(data.data);
+    console.log("msg recived");
     setVideoState(message);
 }
 

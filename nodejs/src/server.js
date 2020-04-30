@@ -1,34 +1,40 @@
 //global vars
 var videos = {};
-var sockets = {};
+var sockets = new Map();
+
+function log(msg){
+    if(true){
+        console.log(msg);
+    }
+}
 
 function onMessage(data){
     var message;
     try {
         message = JSON.parse(data);
     }catch(e){
-        console.log("Maformed: " + data);
+        log("Maformed: " + data);
         return;
     }
-    console.log(message);
+    log(message);
     switch(message.type){
         case 'join':
             addSocketToVideo(message, this);
-            console.log("join " + message.video);
             break;
         case 'update':
-            updateVideo(sockets[this], message.state);
-            console.log("update " + message.state);
+            updateVideo(sockets.get(this), message.state, this);
         break;
     }
 }
 
 
-function onClose(ws){
-    console.log("close");
-    if(sockets[ws]){
+function onClose(e){
+    var ws = this;
+    log("close");
+    if(sockets.get(ws)){
+        log("deleting ws");
         //remove assotioaion with video
-        var video = videos[sockets[ws]];
+        var video = videos[sockets.get(ws)];
         const index = video.clients.indexOf(ws);
 
         if (index > -1) {
@@ -36,21 +42,20 @@ function onClose(ws){
         }
 
         //delete entry in sockets
-        delete sockets[ws];
+        sockets.delete(ws);
     }
 }
 
 
-function sendUpdateToClients(video){
-    var data = JSON.stringify({
-        starttime: video.starttime,
-        time: video.time,
-        playbackRate: video.playbackRate,
-        paused: video.paused
-    });
+function sendUpdateToClients(video, wsOrig){
+    var data = JSON.stringify(video.state);
     for(var i = 0; i < video.clients.length; i++){
-        video.clients[i].send(data);
-        console.log(i);
+        if(video.clients[i] !== wsOrig){
+            video.clients[i].send(data);
+            log("+" + i);
+        }else{
+            log("-" + i);
+        }
     }
 }
 
@@ -58,22 +63,24 @@ function addSocketToVideo(message, ws){
     var id = message.video;
     var state = message.state;
 
-    sockets[ws] = id;
+    sockets.set(ws, id);
 
     if(!videos[id]){
         videos[id] = {
             clients: [],
-            starttime: state.starttime,
-            time: state.time,
-            playbackRate: state.playbackRate,
-            paused: state.paused
+            state:{
+                starttime: state.starttime,
+                time: state.time,
+                playbackRate: state.playbackRate,
+                paused: state.paused
+            }
         };
     }
     videos[id].clients.push(ws);
-    sendUpdateToClients(videos[id]);
+    sendUpdateToClients(videos[id], null);
 }
 
-function updateVideo(id, data){
+function updateVideo(id, data, wsOrig){
     //check valid
     if( typeof data !== 'undefined' &&
         typeof data.starttime === 'number' &&
@@ -81,19 +88,18 @@ function updateVideo(id, data){
         typeof data.playbackRate === 'number' &&
         typeof data.paused === 'boolean')
     {
-        console.log(id);
-        videos[id].starttime = data.starttime;
-        videos[id].time = data.time;
-        videos[id].playbackRate = data.playbackRate;
-        videos[id].paused = data.paused;
-        sendUpdateToClients(videos[id]);
+        log(id);
+        videos[id].state = data;
+        sendUpdateToClients(videos[id], wsOrig);
+    }else{
+        log("invalid data @ update");
     }
 }
 
 
 
 //Start server
-console.log("Server started on port 5000");
+log("Server started on port 5000");
 var WebSocketServer = require('ws').Server, wss = new WebSocketServer({port: 5000});
 
 wss.on('connection', function(ws) {

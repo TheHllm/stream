@@ -5,7 +5,7 @@ function returnError($msg){
 }
 
 //check if file present
-if(!isset($_FILES['file'])){
+if(!isset($_FILES['file']) || $_FILES['file']['tmp_name'] == ""){
     returnError("No file uploaded.");
 }
 
@@ -14,7 +14,6 @@ if(!isset($_FILES['file'])){
 $hash = hash_file('md5', $_FILES['file']['tmp_name']);
 
 //get name and path
-echo exec('ls /tmp/');
 $filetype = exec('file '. $_FILES['file']['tmp_name']);
 if(strpos($filetype, 'MP4') !== false){
     $extension = "mp4";
@@ -25,8 +24,6 @@ if(strpos($filetype, 'MP4') !== false){
 }else{
     returnError("Has to be mp4,flv or avi!");
 }
-
-$extension = pathinfo($_FILES['file']['name'])['extension'];
 
 $filename = $hash . '.' . $extension;
 $path = '/opt/uploads/' ;
@@ -41,7 +38,8 @@ if (!is_dir($path)) {
 if(!file_exists($filePath)){
     move_uploaded_file($_FILES['file']['tmp_name'], $filePath);
 }
-
+if(!isset($_POST['xhr'])){
+    header("Location: watch?v=" . $filename);
+}
 echo json_encode(array('id' => $filename));
-
 ?>
