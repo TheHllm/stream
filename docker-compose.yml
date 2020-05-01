@@ -11,7 +11,7 @@ services:
             - '127.0.0.1:1234:80'
         volumes:
             - './nginx/html:/usr/local/nginx/html'
-            - 'dash:/opt/dash'
+            - 'dash:/opt/dash:z'
             - 'uploads:/opt/uploads'
         restart: unless-stopped
         depends_on:
@@ -24,8 +24,8 @@ services:
         image: php:7-fpm
         volumes:
             - './nginx/html:/usr/local/nginx/html'
-            - 'dash:/opt/dash'
-            - 'uploads:/opt/uploads'
+            - 'dash:/opt/dash:z'
+            - 'uploads:/opt/uploads:z'
         networks:
             - backend
 
@@ -42,7 +42,7 @@ services:
            dockerfile: Dockerfile
         volumes:
             - 'dash:/opt/dash'
-            - 'uploads:/opt/uploads'
+            - 'uploads:/opt/uploads:z'
         restart: "no"
 
 volumes:
