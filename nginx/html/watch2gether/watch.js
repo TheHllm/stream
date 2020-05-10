@@ -51,6 +51,10 @@ function onStateChange(e){
 
 function onMessage(data){   
     var message = JSON.parse(data.data);
+    if(typeof message.type !== "undefined" && message.type=='ping'){
+        //ignore
+        return;
+    }
     console.log("msg recived");
     setVideoState(message);
 }
@@ -72,6 +76,9 @@ window.onload = function (){
             state: getVideoState()
         });
         ws.send(msg);
+        setInterval(function(){
+            ws.send(JSON.stringify({type: 'ping'}));
+        }, 5000)
     }
 
     ws.onmessage = onMessage;

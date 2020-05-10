@@ -24,6 +24,9 @@ function onMessage(data){
         case 'update':
             updateVideo(sockets.get(this), message.state, this);
         break;
+        case 'ping':
+            this.send(JSON.stringify({type: 'ping'}));
+        break;
     }
 }
 
