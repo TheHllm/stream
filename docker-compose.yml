@@ -24,6 +24,7 @@ services:
         image: php:7-fpm
         volumes:
             - './nginx/html:/usr/local/nginx/html'
+            - '/home/hllm/poi/s1:/opt/injest/'
             - 'dash:/opt/dash:z'
             - 'uploads:/opt/uploads:z'
         networks:
