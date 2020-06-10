@@ -2,6 +2,15 @@
 class FileSaver{
     const uploadPath = '/opt/uploads/';
     const convertPath = "/opt/convert/";
+    const extensionMap = array(
+        'Macromedia Flash Video' => 'flv',
+        'AVI' => 'avi',
+        'Matroska' => 'mkv',
+        'Audio file with ID3' => 'mp3',
+        'WAVE' => 'wav',
+        'Ogg' => 'ogg'
+
+    );
     private function returnError($msg){
         echo json_encode(array( 'error' => $msg));
         exit;
@@ -20,28 +29,31 @@ class FileSaver{
         if(strpos($filetype, 'MP4') !== false){
             $extension = 'mp4';
             $path = self::uploadPath; //dont move to convert
-        }else if(strpos($filetype, 'Macromedia Flash Video') !== false){
-            $extension = 'flv';
-        }else if(strpos($filetype, 'AVI') !== false){
-            $extension = 'avi';
-        }else if(strpos($filetype, 'Matroska') !== false){
-            $extension = 'mkv';
-        }else{
-            $this->returnError("Has to be mp4, flv, mkv, or avi. But it was " . $filetype);
         }
-
-        
-        $filePath = $path . $hash . '.' . $extension;
-
-        if(!file_exists($filePath)){
-            if($isUpload){
-                move_uploaded_file($inpath, $filePath);
-            }else{
-                rename($inpath, $filePath);
+        foreach (self::extensionMap as $str => $ext) {
+            if(strpos($filetype, $str) !== false){
+                $extension = $ext;
+                break;
             }
+        }
+        if(!isset($extension)){
+            $this->returnError("Has to be ". implode(', ', array_values(self::extensionMap)) ." but it was " . $filetype);
         }
 
         $fileId = $hash . '.mp4';
+
+        //check if the file was already converted
+        if(!file_exists(self::uploadPath . $fileId)){
+            $filePath = $path . $hash . '.' . $extension;
+            if(!file_exists($filePath)){
+                if($isUpload){
+                    move_uploaded_file($inpath, $filePath);
+                }else{
+                    rename($inpath, $filePath);
+                }
+            }
+        }
+
         if($redirect){
             header("Location: watch?v=" . $fileId);
         }
