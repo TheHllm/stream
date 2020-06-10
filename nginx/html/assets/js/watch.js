@@ -1,23 +1,29 @@
-var video;
-var videoId;
 var ignoreNextStateChange = false;
 var ignoreNextStateChangeResetTimeout;
+var videoReady = false;
+var lastMessage = undefined;
 
 
 function getVideoState(){
     return {
         starttime: new Date().getTime(),
         time: video.currentTime,
-        playbackRate: video.playbackRate,
+        playbackRate: video.speed,
         paused: video.paused,
     }
 }
 
 function setVideoState(data){
+    lastMessage = data;
+    if(!videoReady){
+        return;
+    }
+    lastMessage.executed = true;
+
     clearTimeout(ignoreNextStateChangeResetTimeout);
     ignoreNextStateChange = true;
     console.log("setting state ignore:" + ignoreNextStateChange);
-    video.playbackRate = data.playbackRate;
+    video.speed = data.playbackRate;
     var time = data.time + ((new Date().getTime()) - data.starttime)/1000 * data.playbackRate * (data.paused ? 0 : 1);
     
     video.currentTime = time;
@@ -34,6 +40,8 @@ function onStateChange(e){
         clearTimeout(ignoreNextStateChangeResetTimeout);
         ignoreNextStateChangeResetTimeout = setTimeout(function (){ignoreNextStateChange = false}, 500); // wait a bit before resetting this since one state change can trigger up to 4 events.
         console.log("resting ignore...");
+    }else if(!videoReady){
+        return;
     }else if(ws.readyState === 1){
         console.log("onStateChanged... sending message");
         blipSelf();
@@ -44,8 +52,13 @@ function onStateChange(e){
             name: name
         };
         ws.send(JSON.stringify(message));
+    }
+}
 
-
+function onVideoReady(){
+    videoReady = true;
+    if(lastMessage !== undefined && !(lastMessage.executed && lastMessage.executed === true)){
+        setVideoState(lastMessage);
     }
 }
 
@@ -55,15 +68,14 @@ window.onload = function (){
     userListElm = document.getElementById('user-list');
     chatWindow = document.getElementById("chat-window");
 
-    video = document.getElementById('video');
-    videoId = video.dataset.video;
-
     chatInput = document.getElementById('chat-input');
     document.getElementById('chat-form').addEventListener('submit', sendChatMessage);
 
-    var events = ["pause", "play", "seeked", "ratechange"];
+    video.on("ready", onVideoReady);
+
+    var events = ["pause", "playing", "seeked", "ratechange"];
     for(var i = 0; i < events.length; i++){
-        video.addEventListener(events[i], onStateChange);
+        video.on(events[i], onStateChange);
     }
 
     crateWebsocket();

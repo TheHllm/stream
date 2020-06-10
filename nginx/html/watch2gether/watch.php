@@ -29,12 +29,16 @@
             <div class="col h-100">
                 <div class="video-container">
                     <div>
-                        <video id="video" playsinline controls data-video="<?php echo htmlentities($_GET['v']);?>" controls>
-                            <source src="/uploads/<?php echo htmlentities($_GET['v']);?>">
-                        </video>
+                        <?php if(preg_match("/^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$/", $_GET['v'])) : ?>
+                            <div id="video" data-plyr-provider="youtube" data-plyr-embed-id="<?php echo htmlentities($_GET['v']);?>"></div>
+                            
+                        <?php else : ?>
+                            <video id="video" playsinline controls data-video="<?php echo htmlentities($_GET['v']);?>" controls>
+                                <source src="/uploads/<?php echo htmlentities($_GET['v']);?>">
+                            </video>
+                        <?php endif; ?>
                     </div>
                 </div>
-                        
             </div>
 
             <div class="col-md-3">
@@ -54,7 +58,7 @@
                             </div>
                             <div class="card-body">
                                 <div id="chat-window" class="text-break bg-white d-flex flex-column bd-highlight mb-3 mh-100" style="max-height: 23em !important; overflow-x: hidden; overflow-y: auto !important;"></div>
-
+                                
                                 <form id="chat-form" class="bg-light">
                                     <div class="input-group">
                                         <input type="text" id="chat-input" placeholder="Message" class="form-control">
@@ -73,7 +77,8 @@
     </div>
 
     <script>
-        const player = new Plyr('#video');
+        const videoId = "<?php echo htmlentities($_GET['v']);?>";
+        const video = new Plyr('#video');
     </script>
 </body>
 </html>
