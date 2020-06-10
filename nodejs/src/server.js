@@ -27,8 +27,11 @@ function onMessage(data){
             addSocketToVideo(message, this);
             break;
         case 'update':
-            updateVideo(sockets.get(this), message.state, this);
+            updateVideo(videos[sockets.get(this)], message.state, this);
         break;
+        case 'chat':
+            relayChatMessage(videos[sockets.get(this)], message, this)
+            break;
         case 'ping':
             this.send(JSON.stringify({type: 'ping'}));
         break;
@@ -55,6 +58,10 @@ function onClose(e){
     }
 }
 
+function relayChatMessage(video, message, wsOrig){
+    var data = JSON.stringify({name: nameMap.get(wsOrig), text: message.text, type: 'chat'})
+    sendMessageToClientsOfVideo(video, data, wsOrig);
+}
 
 function sendUpdateToClients(video, wsOrig){
     //add the users ips:
@@ -64,22 +71,27 @@ function sendUpdateToClients(video, wsOrig){
     }
 
     video.state.lastUpdater = nameMap.get(wsOrig);
+    video.state.type = "update";
 
     //turn into json
     var data = JSON.stringify(video.state);
     //send the data
+    sendMessageToClientsOfVideo(video, data, wsOrig);
+}
+
+function sendMessageToClientsOfVideo(video, message, wsOrig){
     for(var i = 0; i < video.clients.length; i++){
         if(video.clients[i] !== wsOrig){
-            video.clients[i].send(data);
-            log("+" + i);
-        }else{
-            log("-" + i);
+            video.clients[i].send(message);
         }
     }
 }
 
 function addSocketToVideo(message, ws){
     var id = message.video;
+    if(!id || id == ""){
+        ws.close();
+    }
     var state = message.state;
 
     //add socket to our list
@@ -103,7 +115,7 @@ function addSocketToVideo(message, ws){
     sendUpdateToClients(videos[id], null);
 }
 
-function updateVideo(id, data, wsOrig){
+function updateVideo(video, data, wsOrig){
     //check valid
     if( typeof data !== 'undefined' &&
         typeof data.starttime === 'number' &&
@@ -111,9 +123,8 @@ function updateVideo(id, data, wsOrig){
         typeof data.playbackRate === 'number' &&
         typeof data.paused === 'boolean')
     {
-        log(id);
-        videos[id].state = data;
-        sendUpdateToClients(videos[id], wsOrig);
+        video.state = data;
+        sendUpdateToClients(video, wsOrig);
     }else{
         log("invalid data @ update");
     }

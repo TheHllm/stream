@@ -1,0 +1,29 @@
+body{
+    padding: 0px;
+    margin: 0px;
+    margin-top: 3%;
+}
+.text-white-muted{
+    color: #bbbbbb !important;
+}
+@keyframes blip{
+    from {
+        background-color: #00B3FF;
+        border-color: #00B3FF;
+    }
+    to {
+        background-color: #fff;
+    }
+}
+
+.blip{
+    animation: blip 1s;
+}
+
+.media {
+    min-height: min-content;
+}
+
+.mw-90 {
+    max-width: 90% !important;
+}
