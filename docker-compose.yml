@@ -12,7 +12,7 @@ services:
         volumes:
             - './nginx/html:/usr/local/nginx/html'
             - 'dash:/opt/dash:z'
-            - 'uploads:/opt/uploads'
+            - './data/uploads:/opt/uploads'
         restart: unless-stopped
         depends_on:
             - nodejs
@@ -26,7 +26,8 @@ services:
             - './nginx/html:/usr/local/nginx/html'
             - '/home/hllm/poi/s1:/opt/injest/'
             - 'dash:/opt/dash:z'
-            - 'uploads:/opt/uploads:z'
+            - './data/uploads:/opt/uploads:z'
+            - 'convert:/opt/convert:z'
         networks:
             - backend
 
@@ -37,18 +38,19 @@ services:
         networks:
             - backend
     
-    alpine-init:
+    alpine:
         build:
            context: ./alpine
            dockerfile: Dockerfile
         volumes:
             - 'dash:/opt/dash'
-            - 'uploads:/opt/uploads:z'
+            - './data/uploads:/opt/uploads:z'
+            - 'convert:/opt/convert:z'
         restart: "no"
 
 volumes:
     dash:
-    uploads:
+    convert:
 
 networks:
     backend:
