@@ -8,12 +8,14 @@ function createDropzone(uploadUrl, onProgress, onLoad){
     var finput = document.createElement('input');
     finput.type = "file";
     finput.name= "file";
-    
+    finput.classList.add('btn')
+
     form.appendChild(finput);
 
     var sinput = document.createElement('input');
     sinput.type="submit";
     sinput.value="Upload";
+    sinput.classList.add('btn', 'btn-success')
 
     form.appendChild(sinput);
     

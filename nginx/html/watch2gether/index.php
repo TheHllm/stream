@@ -1,6 +1,8 @@
 <html>
 <head>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/main.css">
   <script src="/assets/js/filednd.js"></script>
   <script>
     var progList;
@@ -9,7 +11,13 @@
       //debugger;
       if(typeof progDict.get(xhr) === 'undefined'){
         var elm = document.createElement('li');
-        elm.innerHTML = "<div class=\"progress\">  <div class=\"progress-bar\" role=\"progressbar\" style=\"width: 0%;\" aria-valuenow=\"0\" aria-valuemin=\"0\" aria-valuemax=\"100\">0%</div></div>";
+        
+        var outerDiv = document.createElement('div');
+        outerDiv.classList.add('progress')
+        var div = document.createElement('div');
+        div.classList.add('progress-bar','progress-bar-striped','progress-bar-animated');
+        outerDiv.appendChild(div);
+        elm.appendChild(outerDiv);
         progList.appendChild(elm)
         progDict.set(xhr, elm);
       }
@@ -17,7 +25,7 @@
       var total = e.totalSize || e.total;
       var prct = Math.floor((done/total) * 100) +  "%";
       var progbar = progDict.get(xhr).children[0].children[0];
-      progbar.innerHTML = prct;
+      progbar.innerText = prct;
       progbar.style.width = prct;
 
     }
@@ -32,17 +40,27 @@
     window.onload = function (){
       progList = document.getElementById('progressList');
       var dz = createDropzone("upload.php", onProgress, onLoad);
-      dz.style.height= 100;
-      dz.style.backgroundColor="#bbbbbb";
+      dz.classList.add('jumbotron');
+      var title = document.createElement('h1');
+      title.innerText = "Upload";
+      title.classList.add("display-4")
+      var desc = document.createElement('p');
+      desc.innerText = "Simply drag a file here to upload it or select a file using the dialog."
+      desc.classList.add("lead")
+      var hr = document.createElement('hr');
+      hr.classList.add('my-3');
+      dz.prepend(title, desc, hr);
       document.getElementById('upload').appendChild(dz);
     }
   </script>
 </head>
 
 <body>
-  <div id="upload">
-  <ul id="progressList">
-  </ul>
+  <div id="upload" class="container">
+  </div>
+  <div class="container">
+    <ul id="progressList">
+    </ul>
   </div>
 </body>
 </html>
