@@ -4,8 +4,11 @@
       "module": "commonjs",
       "outDir": "dist",
       "sourceMap": true,
-      "strict":true,
-      "noImplicitAny":true,
+      "strict": true,
+      "noImplicitAny": true,
+      "noImplicitReturns" : true,
+      "noImplicitThis": true,
+      "noFallthroughCasesInSwitch": true,
       "strictNullChecks": true
     },
     "include": [
