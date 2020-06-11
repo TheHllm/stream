@@ -7,6 +7,7 @@ class FileSaver{
         'AVI' => 'avi',
         'Matroska' => 'mkv',
         'Audio file with ID3' => 'mp3',
+        'MPEG ADTS, layer III' => 'mp3',
         'WAVE' => 'wav',
         'Ogg' => 'ogg'
 
@@ -43,9 +44,10 @@ class FileSaver{
         $fileId = $hash . '.mp4';
 
         //check if the file was already converted
-        if(!file_exists(self::uploadPath . $fileId)){
+        $finalPath = self::uploadPath . $fileId;
+        if(!file_exists($finalPath)){
             $filePath = $path . $hash . '.' . $extension;
-            if(!file_exists($filePath)){
+            if(!file_exists($filePath)){                
                 if($isUpload){
                     move_uploaded_file($inpath, $filePath);
                 }else{

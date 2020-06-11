@@ -4,6 +4,7 @@
   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/main.css">
   <script src="/assets/js/filednd.js"></script>
+  <title>Upload</title>
   <script>
     var progList;
     var progDict = new Map();
