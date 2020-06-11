@@ -6,6 +6,7 @@ var lastMessage = undefined;
 
 function getVideoState(){
     return {
+        type: "TODO",
         starttime: new Date().getTime(),
         time: video.currentTime,
         playbackRate: video.speed,
@@ -41,21 +42,18 @@ function onStateChange(e){
         ignoreNextStateChangeResetTimeout = setTimeout(function (){ignoreNextStateChange = false}, 500); // wait a bit before resetting this since one state change can trigger up to 4 events.
         console.log("resting ignore...");
     }else if(!videoReady){
+        console.log("not ready");
         return;
     }else if(ws.readyState === 1){
         console.log("onStateChanged... sending message");
         blipSelf();
         //send video state
-        var message = {
-            type: 'update',
-            state: getVideoState(),
-            name: name
-        };
-        ws.send(JSON.stringify(message));
+        sendVideoState();
     }
 }
 
 function onVideoReady(){
+    console.log("i am ready now");
     videoReady = true;
     if(lastMessage !== undefined && !(lastMessage.executed && lastMessage.executed === true)){
         setVideoState(lastMessage);
@@ -71,7 +69,11 @@ window.onload = function (){
     chatInput = document.getElementById('chat-input');
     document.getElementById('chat-form').addEventListener('submit', sendChatMessage);
 
-    video.on("ready", onVideoReady);
+    if(!video.ready){
+        video.on("ready", onVideoReady);
+    }else{
+        this.videoReady = true;
+    }
 
     var events = ["pause", "playing", "seeked", "ratechange"];
     for(var i = 0; i < events.length; i++){

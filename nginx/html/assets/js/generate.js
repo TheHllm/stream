@@ -73,22 +73,17 @@ function generateOutgoingChatMessage(msg){
 var userListElm;
 var userNameToElmMap = new Map();
 
-function generateUserList(msg){
-    if(typeof msg.users !== 'undefined'){
+function generateUserList(users){
         userNameToElmMap.clear();
         userListElm.innerHTML = ""; //clear
-        for(var i = 0; i < msg.users.length; i++){
+        for(var i = 0; i < users.length; i++){
             var userElm = document.createElement('li');
             userElm.classList.add("list-group-item");
-            userElm.appendChild(generateUsernameSpan(msg.users[i]));
+            userElm.appendChild(generateUsernameSpan(users[i]));
             
-           if(msg.lastUpdater == msg.users[i])
-                userElm.classList.add("blip");
-                
             userListElm.appendChild(userElm);
-            userNameToElmMap.set(msg.users[i], userElm);
+            userNameToElmMap.set(users[i], userElm);
         }
-    }
 }
 
 function blipSelf(){

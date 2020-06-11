@@ -9,14 +9,31 @@ function onMessage(data){
     switch(message.type){
         case "ping": //do nothing
             break;
-        case "update":
-            setVideoState(message);
-            generateUserList(message);
+        case "videostate":
+            if(message.state.type != ""){
+                console.log("got a valid state");
+                setVideoState(message.state);
+            }else{
+                //send own state
+                sendVideoState();
+            }
         break;
+        case 'userlist':
+            generateUserList(message.users);
+            break;
         case "chat":
             reciveChatMessage(message.name, message.text);
         break;
     }
+}
+
+function sendVideoState(){
+    console.log("sending");
+    var msg = JSON.stringify({
+        type: 'setvideostate',
+        state: getVideoState()
+    });
+    ws.send(msg);
 }
 
 function crateWebsocket(){
@@ -27,11 +44,11 @@ function crateWebsocket(){
     ws.onopen = function (){
         var msg = JSON.stringify({
             type: "join",
-            video: videoId,
-            state: getVideoState(),
+            room: videoId,
             name: name
         });
         ws.send(msg);
+        ws.send(JSON.stringify({type: 'getvideostate'})); //ask for video state
         setInterval(function(){
             ws.send(JSON.stringify({type: 'ping'}));
         }, 5000)

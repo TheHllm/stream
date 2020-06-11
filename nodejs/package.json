@@ -3,12 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
-  "author": "TheHllm",
-  "license": "ISC",
   "scripts": {
-    "start": "node server.js"
+    "tsc": "tsc"
   },
   "dependencies": {
+    "@types/ws": "^7.2.5",
+    "typescript": "^3.9.5",
     "ws": "^7.2.5"
   }
 }
