@@ -1,21 +1,27 @@
 <html>
-<head>
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.6.2/plyr.css" />
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
-    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/main.css">
 
-    <script src="/assets/js/generate.js"> </script>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link rel="stylesheet" href="/assets/external/plyr.css" />
+    <link rel="stylesheet" href="/assets/external/bootstrap.min.css">
+    <link href="/assets/external/fa/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="manifest" href="/manifest.json">
+    
     <script src="/assets/js/watch.js"> </script>
     <script src="/assets/js/socket.js"> </script>
     <script src="/assets/js/chat.js"> </script>
-    <script src="https://cdn.plyr.io/3.6.2/plyr.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="/assets/js/userlist.js"> </script>
+    <script src="/assets/js/playlist.js"> </script>
+    <script src="/assets/js/video.js"> </script>
+    <script src="/assets/external/plyr.js"></script>
+    <script src="/assets/external/jquery-3.5.1.slim.min.js"></script>
+    <script src="/assets/external/popper.min.js"></script>
+    <script src="/assets/external/bootstrap.min.js"></script>
+    <script src="/assets/external/Sortable.min.js"></script>
 
     <style>
-        .video-container{
+        #video-container {
             height: 41.5vw;
         }
     </style>
@@ -26,59 +32,91 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col h-100">
-                <div class="video-container">
-                    <div>
-                        <?php if(preg_match("/^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$/", $_GET['v'])) : ?>
-                            <div id="video" data-plyr-provider="youtube" data-plyr-embed-id="<?php echo htmlentities($_GET['v']);?>"></div>
-                            
-                        <?php else : ?>
-                            <video id="video" playsinline controls data-video="<?php echo htmlentities($_GET['v']);?>" controls>
-                                <source src="/uploads/<?php echo htmlentities($_GET['v']);?>">
-                            </video>
-                        <?php endif; ?>
-                    </div>
+            <div class="col h-100 mb-3">
+                <div id="video-container">
+				
+				
                 </div>
             </div>
 
-            <div class="col-md-3">
+            <div class="col-md-3 mb-3">
                 <div class="row mb-3 ">
                     <div class="col-12 pb-4">
-                        <div class="card" style="width: 18rem;">
+                        <div class="card">
                             <div class="card-header">
                                 Users
+                                <button class="btn btn-secondary float-right" data-toggle="collapse" data-target="#user-list" aria-expanded="true">
+                                    <i class="fa fa-chevron-up" aria-hidden="true"></i>
+                                </button>
                             </div>
-                            <ul id="user-list" class="list-group"></ul>
+                            <ul id="user-list" class="list-group collapse show"></ul>
                         </div>
                     </div>
                     <div class="col-12 mh-100">
                         <div class="card mh-100">
                             <div class="card-header">
                                 Chat
-                            </div>
-                            <div class="card-body">
-                                <div id="chat-window" class="text-break bg-white d-flex flex-column bd-highlight mb-3 mh-100" style="max-height: 23em !important; overflow-x: hidden; overflow-y: auto !important;"></div>
-                                
-                                <form id="chat-form" class="bg-light">
-                                    <div class="input-group">
-                                        <input type="text" id="chat-input" placeholder="Message" class="form-control">
-                                        <div class="input-group-append"> 
-                                            <button id="chat-send" type="submit" class="btn btn-link"> <i class="fa fa-paper-plane"></i></button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
+                                <button class="btn btn-secondary float-right" data-toggle="collapse" data-target="#chat-collapse" aria-expanded="true">
+                                    <i class="fa fa-chevron-up" aria-hidden="true"></i>
+                                </button>
+							</div>
+							<div id="chat-collapse" class="collapse show" >
+								<div class="card-body">
+									<div id="chat-window" class="text-break bg-white d-flex flex-column bd-highlight mb-3 mh-100" style="max-height: 23em !important; overflow-x: hidden; overflow-y: auto !important;"></div>
+
+									<form id="chat-form" class="bg-light">
+										<div class="input-group">
+											<input type="text" id="chat-input" placeholder="Message" class="form-control">
+											<div class="input-group-append">
+												<button id="chat-send" type="submit" class="btn btn-link"> <i class="fa fa-paper-plane"></i></button>
+											</div>
+										</div>
+									</form>
+								</div>
+							</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+        <div class="row mb-3">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header">
+                        Playlist
+                        <div class="float-right"> <button data-toggle="modal" data-target="#playlistAddModal" class="btn btn-success"><i class="fa fa-plus"></i></button></div>
+                    </div>
+                    <ul id="playlist" class="list-group list-group-flush">
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        const videoId = "<?php echo htmlentities($_GET['v']);?>";
-        const video = new Plyr('#video');
-    </script>
+    <div class="modal fade" id="playlistAddModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add a video</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="playlist-add-form">
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Add a video:</label>
+                            <input id="playlist-add-input" class="form-control" id="message-text" type="text"></input>
+                        </div>
+                        <div class="float-right">
+                            <button type="submit" class="btn btn-success">Add</button>
+                            <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

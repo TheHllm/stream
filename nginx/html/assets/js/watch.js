@@ -1,84 +1,60 @@
-var ignoreNextStateChange = false;
-var ignoreNextStateChangeResetTimeout;
-var videoReady = false;
-var lastMessage = undefined;
 
 
-function getVideoState(){
-    return {
-        type: "TODO",
-        starttime: new Date().getTime(),
-        time: video.currentTime,
-        playbackRate: video.speed,
-        paused: video.paused,
-    }
-}
-
-function setVideoState(data){
-    lastMessage = data;
-    if(!videoReady){
-        return;
-    }
-    lastMessage.executed = true;
-
-    clearTimeout(ignoreNextStateChangeResetTimeout);
-    ignoreNextStateChange = true;
-    console.log("setting state ignore:" + ignoreNextStateChange);
-    video.speed = data.playbackRate;
-    var time = data.time + ((new Date().getTime()) - data.starttime)/1000 * data.playbackRate * (data.paused ? 0 : 1);
-    
-    video.currentTime = time;
-    if(data.paused){
-        video.pause();
+function getName(){
+    //try to get name form disk
+    var dname = window.localStorage.getItem('name');
+    if(dname && !dname.startsWith("User #")){
+        return dname;
     }else{
-        video.play();
+        var n = (prompt("Please enter your name", "User") || "User").trim() + " #" + Math.round(Math.random()*10000);
+        if(!n.startsWith("User #")){
+            window.localStorage.setItem('name', n);
+        }
     }
-    
-}
-
-function onStateChange(e){
-    if(ignoreNextStateChange){
-        clearTimeout(ignoreNextStateChangeResetTimeout);
-        ignoreNextStateChangeResetTimeout = setTimeout(function (){ignoreNextStateChange = false}, 500); // wait a bit before resetting this since one state change can trigger up to 4 events.
-        console.log("resting ignore...");
-    }else if(!videoReady){
-        console.log("not ready");
-        return;
-    }else if(ws.readyState === 1){
-        console.log("onStateChanged... sending message");
-        blipSelf();
-        //send video state
-        sendVideoState();
-    }
-}
-
-function onVideoReady(){
-    console.log("i am ready now");
-    videoReady = true;
-    if(lastMessage !== undefined && !(lastMessage.executed && lastMessage.executed === true)){
-        setVideoState(lastMessage);
-    }
+    return n;
 }
 
 
+function findGetParameter(parameterName) {
+    var result = null,
+        tmp = [];
+    location.search
+        .substr(1)
+        .split("&")
+        .forEach(function (item) {
+          tname = item.substr(0,item.indexOf('='));
+          if (tname === parameterName) result = decodeURIComponent(item.substr(item.indexOf('=')+1));
+        });
+    return result;
+}
+
+
+var chat;
+var userlist;
+var playlist;
+var serverCon;
 
 window.onload = function (){
-    userListElm = document.getElementById('user-list');
-    chatWindow = document.getElementById("chat-window");
+    //get the users name
+    var name = this.getName();
 
-    chatInput = document.getElementById('chat-input');
-    document.getElementById('chat-form').addEventListener('submit', sendChatMessage);
+    //userlist
+    userlist = new Userlist(name, document.getElementById('user-list'));
 
-    if(!video.ready){
-        video.on("ready", onVideoReady);
-    }else{
-        this.videoReady = true;
-    }
+    //chat
+    chat = new Chat(name, document.getElementById('chat-input'), document.getElementById("chat-window"), document.getElementById('chat-form'));
 
-    var events = ["pause", "playing", "seeked", "ratechange"];
-    for(var i = 0; i < events.length; i++){
-        video.on(events[i], onStateChange);
-    }
+    playlist = new Playlist(document.getElementById('playlist'), document.getElementById('playlist-add-form'), document.getElementById('playlist-add-input'), userlist);
 
-    crateWebsocket();
+    //connection
+    var roomId = this.findGetParameter('v');
+    serverCon = new ServerConnection(name, roomId, chat, userlist, playlist); //TODO: injest video;
+}
+
+function getTime(){
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.open( "GET", "https://worldtimeapi.org/api/timezone/Etc/UTC", false ); // false for synchronous request
+    xmlHttp.send( null );
+    var time = JSON.parse(xmlHttp.responseText);
+    return Date.parse(time.datetime);
 }

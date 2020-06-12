@@ -3,6 +3,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="manifest" href="/manifest.json">
   <script src="/assets/js/filednd.js"></script>
   <title>Upload</title>
   <script>

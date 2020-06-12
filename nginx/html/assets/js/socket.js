@@ -1,72 +1,78 @@
-var ws;
-var name;
+class ServerConnection{
+    
+    constructor(name, roomId, _chat, _userlist, _playlist){
+        this.chat = _chat;
+        this.name = name;
+        this.roomId = roomId;
+        this.initialized = false;
+        this.userlist = _userlist;
+        this.playlist = _playlist
 
-const defaultName = "User";
+        let _this = this;
 
-function onMessage(data){   
-    var message = JSON.parse(data.data);
-
-    switch(message.type){
-        case "ping": //do nothing
-            break;
-        case "videostate":
-            if(message.state.type != ""){
-                console.log("got a valid state");
-                setVideoState(message.state);
-            }else{
-                //send own state
-                sendVideoState();
-            }
-        break;
-        case 'userlist':
-            generateUserList(message.users);
-            break;
-        case "chat":
-            reciveChatMessage(message.name, message.text);
-        break;
-    }
-}
-
-function sendVideoState(){
-    console.log("sending");
-    var msg = JSON.stringify({
-        type: 'setvideostate',
-        state: getVideoState()
-    });
-    ws.send(msg);
-}
-
-function crateWebsocket(){
-    //ask for a name
-    name = getName();
-
-    ws = new WebSocket("wss://stream.hllm.tk/wss");
-    ws.onopen = function (){
-        var msg = JSON.stringify({
-            type: "join",
-            room: videoId,
-            name: name
-        });
-        ws.send(msg);
-        ws.send(JSON.stringify({type: 'getvideostate'})); //ask for video state
-        setInterval(function(){
-            ws.send(JSON.stringify({type: 'ping'}));
-        }, 5000)
-    }
-
-    ws.onmessage = onMessage;
-}
-
-function getName(){
-    //try to get name form disk
-    var dname = window.localStorage.getItem('name');
-    if(dname && !dname.startsWith("User #")){
-        return dname;
-    }else{
-        var n = (prompt("Please enter your name", defaultName) || defaultName).trim() + " #" + Math.round(Math.random()*10000);
-        if(!n.startsWith("User #")){
-            window.localStorage.setItem('name', n);
+        //actual conection
+        this.ws = new WebSocket("wss://stream.hllm.tk/wss");
+        this.ws.onopen = function (){
+            var msg = JSON.stringify({
+                type: "join",
+                room: roomId,
+                name: _this.name
+            });
+            _this.ws.send(msg); //join a room
+            _this.ws.send(JSON.stringify({type: 'getvideostate'})); //ask for video state
+            //load the playlist only once we have the current video, so that it will contain good data, even if the room is new
+            setInterval(function(){
+                _this.ws.send(JSON.stringify({type: 'ping'}));
+            }, 5000)
         }
+    
+        
+        this.ws.onmessage = this.onmessage.bind(this);
     }
-    return n;
+
+    onmessage(data){
+        var message = JSON.parse(data.data); //decode data into a message
+        switch(message.type){ //actions depending on type of message
+            case "ping": //do nothing
+                break;
+            case "videostate":
+                console.log(message);
+                if(message.state.type != ""){
+                    console.log("got a valid state");
+                    if(!this.initialized){
+                        this.playlist.switchVideo(message.state);
+                    }
+                    this.userlist.blipUser(message.state.lastUpdater);
+                    this.playlist.video.setVideoState(message.state);
+                }else{
+                    this.playlist.switchVideo({type: this.playlist.getVideoType(findGetParameter('v')), id: findGetParameter('v')}); // Session isn't initialized
+                    //send own state
+                    this.sendVideoState(this.playlist.video.getVideoState());
+                }
+                if(!this.playlist.defined){
+                    this.ws.send(JSON.stringify({type: 'getplaylist'}));
+                }
+                this.initialized = true;
+            break;
+            case 'playlist':
+                this.playlist.setPlaylist(message.playlist);
+                this.userlist.blipUser(message.playlist.lastUpdater);
+            break;
+            case 'userlist':
+                this.userlist.generateUserList(message.users);
+                break;
+            case "chat":
+                this.chat.onReciveMessage(message.name, message.text);
+            break;
+        }
+    };
+
+    sendVideoState(state){
+        console.log("sending");
+        var msg = JSON.stringify({
+            type: 'setvideostate',
+            state: state
+        });
+        this.ws.send(msg);
+    }
 }

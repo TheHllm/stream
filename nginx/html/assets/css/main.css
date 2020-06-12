@@ -27,3 +27,12 @@ body{
 .mw-90 {
     max-width: 90% !important;
 }
+
+[data-toggle="collapse"] .fa:before {  
+    content: "\f077";
+}
+
+[data-toggle="collapse"].collapsed .fa:before {
+    content: "\f078";
+}
+  

@@ -1,6 +1,6 @@
 {
-    "short_name": "TOTP",
-    "name": "TOTP",
+    "short_name": "Stream",
+    "name": "Stream",
     "icons": [
       {
         "src": "assets/images/icons/32.png",

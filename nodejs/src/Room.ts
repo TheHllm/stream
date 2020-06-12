@@ -1,5 +1,6 @@
 import {Client} from './Client';
 import {Server} from './Server';
+import {Playlist} from './Playlist';
 import {Video} from './Video';
 import WebSocket = require('ws');
 
@@ -7,7 +8,7 @@ import WebSocket = require('ws');
 export class Room{
     id: string
     clients: Array<Client> = new Array<Client>();
-    private video: Video = new Video();
+    private playlist: Playlist = new Playlist();
 
     private server: Server;
     
@@ -32,9 +33,10 @@ export class Room{
         });
     }
 
-    public setVideoState(vid: Video, exclude?:Client){
-        this.video = vid;
-    
+    public setVideoState(vid: any, exclude?:Client){
+        this.playlist.setCurrentVideoState(new Video(vid));
+        this.playlist.getCurrentVideo().lastUpdater = exclude?.name || "";
+
         this.clients.forEach( cli => {
             if(cli != exclude){
                 this.sendVideoStateToClient(cli);
@@ -43,7 +45,7 @@ export class Room{
     }
 
     public sendVideoStateToClient(cli:Client){
-        var msg = JSON.stringify({type: 'videostate', state: this.video});
+        var msg = JSON.stringify({type: 'videostate', state: this.playlist.getCurrentVideo()});
         cli.send(msg);
     }
 
@@ -64,6 +66,21 @@ export class Room{
         });
     }
     
+    public sendPlaylistToAll(){
+        this.sendMessageToClients(JSON.stringify({type: 'playlist', playlist: this.playlist.getVideos()}));
+    }
+
+    public setPlaylist(obj:any, org:Client){
+        //convert any into playlist
+        this.playlist = new Playlist(obj); //convert into a proper object !important
+        this.playlist.lastUpdater = org.name;
+        this.sendPlaylistToAll();
+    }
+
+    public sendPlaylist(cli: Client){
+        cli.send(JSON.stringify({type: 'playlist', playlist: this.playlist.getVideos()}));
+    }
+
     public removeClient(cli:Client){
         this.clients = this.clients.filter(c => c != cli);
         if(this.clients.length === 0){

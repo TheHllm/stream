@@ -1,6 +1,7 @@
 import { Room } from './Room';
-import WebSocket = require('ws');
 import { Video } from './Video';
+import { Playlist} from './Playlist';
+import WebSocket = require('ws');
 
 export class Client {
     name: string
@@ -14,7 +15,6 @@ export class Client {
 
         let t = this;
         function onClose() {
-            console.log("closed");
             t.room.removeClient(t); //object is now dangeling -> will get gc-ed
         }
 
@@ -25,9 +25,6 @@ export class Client {
 
         this.ws.on('message', function (data: string) {
             var msg = JSON.parse(data);
-            if(msg.type != 'ping'){
-                console.log(msg);
-            }
             try {
                 switch (msg.type) {
                     case 'setname':
@@ -40,12 +37,20 @@ export class Client {
                     case 'getvideostate':
                         t.room.sendVideoStateToClient(t);
                         break;
-                    
+                    //chat
                     case 'chat':
                         t.room.sendChatToAll(msg.text, t);
                         break;
+                    //playlist
+                    case 'getplaylist':
+                        t.room.sendPlaylist(t);
+                        break;
+                    case 'setplaylist':
+                        t.room.setPlaylist(msg.playlist, t);
+                        
+                        break;
 
-
+                    //utility
                     case 'ping':
                         t.send(JSON.stringify({ type: 'ping' }));
                         break;
@@ -57,6 +62,7 @@ export class Client {
             } catch(q){console.log(q); t.ws.close(); }
         });
     }
+
 
     public send(msg: string) {
         this.ws.send(msg);
