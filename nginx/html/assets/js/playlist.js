@@ -7,7 +7,7 @@ class Playlist{
     constructor(_playlist, _addForm, _addInput, _userlist){
         this.playlistElm = _playlist;
         this.addInput = _addInput;
-        this.playlist = {index: -1, videos: []};
+        this.playlist = {index: -2, videos: []};
         this.video = null;
         this.defined = false;
         this.ignoreNextEndedTimer;
@@ -62,6 +62,11 @@ class Playlist{
         });
     }
 
+    setVideoState(state, setVideoState = true){
+        this.playlist.videos[this.playlist.index] = state;
+        if(setVideoState) this.video.setVideoState(state);
+    }
+
     getVideoType(id){
         var type = "file";
         if(id.match(ytRegex)){
@@ -82,7 +87,7 @@ class Playlist{
         this.defined = true;
         var matches = false;
         try{
-            matches = data.videos[data.index].id == this.playlist.videos[this.playlist.index].id; // outofrange error might occur
+            matches = data.index == this.playlist.index && data.videos[data.index].id == this.playlist.videos[this.playlist.index].id; // outofrange error might occur
         }catch(e){}
 
         if(!matches){
@@ -106,6 +111,7 @@ class Playlist{
     switchVideo(videoInfo){
         console.log("switching video");
         videoInfo = videoInfo || this.playlist.videos[this.playlist.index];
+        if(this.video) this.video.disable();
         this.video = new Video(videoInfo.type, videoInfo.id);
 
         this.video.plyr.on("ended", this._nextVideo.bind(this));   
@@ -131,7 +137,10 @@ class Playlist{
         this._generatePlaylist();
         if(videoChanged){
             this.switchVideo();
-            setVideoState(this.playlist.videos[this.playlist.index]);
+            this.playlist.videos[this.playlist.index].paused = false;
+            this.playlist.videos[this.playlist.index].time = 0;
+            this.playlist.videos[this.playlist.index].starttime = getTime();
+            this.video.setVideoState(this.playlist.videos[this.playlist.index]);
         }
         this.sendCurrentPlaylist();
     }
@@ -158,10 +167,10 @@ class Playlist{
             return;
         }
         this.playlist.index++;
-        generatePlaylist();
-        switchVideo();
-        setVideoState(currentPlaylist.videos[currentPlaylist.index]);
-        sendCurrentPlaylist();
+        this._generatePlaylist();
+        this.switchVideo();
+        this.video.setVideoState(this.playlist.videos[this.playlist.index]);
+        this.sendCurrentPlaylist();
     }
 
     _generatePlaylist(){

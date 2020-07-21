@@ -15,13 +15,21 @@ class Video{
         if(!this.plyr.ready){
             this.plyr.on("ready", this._onVideoReady.bind(this));
         }else{
-            setTimeout(this._onVideoReady.bind(this), 100); // The video probably isn´t *actually* ready, so lets just wait a bit until it is
+            setTimeout(this._onVideoReady.bind(this), 500); // The video probably isn´t *actually* ready, so lets just wait a bit until it is
         }
 
         var events = ["pause", "playing", "seeked", "ratechange"];
         for(var i = 0; i < events.length; i++){
             this.plyr.on(events[i], this.onStateChange.bind(this));
         }
+    }
+
+    disable(){
+        if(this.disabled){
+            return;
+        }
+        this.disabled = true;
+        this.plyr.destroy();
     }
 
     onStateChange(e){
@@ -48,11 +56,16 @@ class Video{
 
 
     setVideoState(data){
+        if(this.disabled){
+            return;
+        }
         this.lastState = data;
         if(!this.videoReady){
+            console.trace("setting:", enrichState(data), "ignoring, not ready");
             return;
         }
         this.lastState.executed = true;
+        console.trace("setting:", enrichState(data));
 
         clearTimeout(this.ignoreNextStateChangeResetTimeout);
         this.ignoreNextStateChange = true;
@@ -69,6 +82,9 @@ class Video{
     }
 
     getVideoState(){
+        if(this.disabled){
+            return;
+        }
         return {
             type: this.type,
             starttime: getTime(),

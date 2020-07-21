@@ -49,6 +49,8 @@ services:
             - './data/uploads:/opt/uploads'
             - 'convert:/opt/convert:z'
         restart: "no"
+        logging:
+            driver: "json-file"
 
 volumes:
     dash:

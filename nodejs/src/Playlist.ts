@@ -14,8 +14,7 @@ export class Playlist{
 
         }else{
             this.videos = new Array<Video>();
-            this.videos.push(new Video());
-            this.index = 0;
+            this.index = -1;
         }
     }
     
