@@ -9,8 +9,8 @@ class FileSaver{
         'Audio file with ID3' => 'mp3',
         'MPEG ADTS, layer III' => 'mp3',
         'WAVE' => 'wav',
-        'Ogg' => 'ogg'
-
+        'Ogg' => 'ogg',
+        'PNG' => 'png'
     );
     private function returnError($msg){
         echo json_encode(array( 'error' => $msg));

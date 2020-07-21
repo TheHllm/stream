@@ -58,3 +58,9 @@ function getTime(){
     var time = JSON.parse(xmlHttp.responseText);
     return Date.parse(time.datetime);
 }
+
+function enrichState(state){
+    var data = Object.assign({}, state);
+    data.realTime = data.time + ((getTime()) - data.starttime)/1000 * data.playbackRate * (data.paused ? 0 : 1);
+    return data;
+}

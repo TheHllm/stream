@@ -19,7 +19,7 @@ class ServerConnection{
                 name: _this.name
             });
             _this.ws.send(msg); //join a room
-            _this.ws.send(JSON.stringify({type: 'getvideostate'})); //ask for video state
+            _this.ws.send(JSON.stringify({type: 'getplaylist'}));//ask for playlist
             //load the playlist only once we have the current video, so that it will contain good data, even if the room is new
             setInterval(function(){
                 _this.ws.send(JSON.stringify({type: 'ping'}));
@@ -36,27 +36,31 @@ class ServerConnection{
             case "ping": //do nothing
                 break;
             case "videostate":
-                console.log(message);
                 if(message.state.type != ""){
-                    console.log("got a valid state");
                     if(!this.initialized){
                         this.playlist.switchVideo(message.state);
+                    }else{
+                        this.playlist.setVideoState(message.state);
                     }
                     this.userlist.blipUser(message.state.lastUpdater);
-                    this.playlist.video.setVideoState(message.state);
                 }else{
-                    this.playlist.switchVideo({type: this.playlist.getVideoType(findGetParameter('v')), id: findGetParameter('v')}); // Session isn't initialized
+                    this.playlist.switchVideo({type: this.playlist.getVideoType(findGetParameter('v')), id: findGetParameter('v')}); 
                     //send own state
                     this.sendVideoState(this.playlist.video.getVideoState());
-                }
-                if(!this.playlist.defined){
-                    this.ws.send(JSON.stringify({type: 'getplaylist'}));
                 }
                 this.initialized = true;
             break;
             case 'playlist':
-                this.playlist.setPlaylist(message.playlist);
-                this.userlist.blipUser(message.playlist.lastUpdater);
+                if(message.playlist.index == -1 || (message.playlist.videos && message.playlist.videos.length == 0)){// Session isn't initialized
+                    message.playlist.videos.push({type: this.playlist.getVideoType(findGetParameter('v')), id: findGetParameter('v')});
+                    message.playlist.index = 0;
+                    this.playlist.setPlaylist(message.playlist);
+                    this.playlist.setVideoState(this.playlist.video.getVideoState(), false);
+                    this.playlist.sendCurrentPlaylist();
+                }else{
+                    this.playlist.setPlaylist(message.playlist);
+                    this.userlist.blipUser(message.playlist.lastUpdater);
+                }
             break;
             case 'userlist':
                 this.userlist.generateUserList(message.users);
@@ -68,11 +72,13 @@ class ServerConnection{
     };
 
     sendVideoState(state){
-        console.log("sending");
-        var msg = JSON.stringify({
+        var obj = {
             type: 'setvideostate',
             state: state
-        });
+        };
+        console.trace("sending:", enrichState(obj.state));
+        var msg = JSON.stringify(obj);
         this.ws.send(msg);
+        this.playlist.setVideoState(state, false); // update state in playlist
     }
 }
