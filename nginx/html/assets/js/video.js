@@ -113,7 +113,7 @@ class Video{
             var ytId = this.id.match(ytIdRegex)[1];
 
             var iframe = document.createElement("iframe");
-            iframe.src = "https://www.youtube.com/embed/" + ytId + "?iv_load_policy=3&playsinline=1&showinfo=0&rel=0&enablejsapi=1"
+            iframe.src = "https://www.youtube.com/embed/" + ytId + "?iv_load_policy=3&playsinline=1&showinfo=0&rel=0&enablejsapi=1&autoplay=1"
             iframe.allow = "autoplay";
             iframe.allowFullscreen = true;
 
