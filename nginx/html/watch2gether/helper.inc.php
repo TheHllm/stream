@@ -26,17 +26,19 @@ class FileSaver{
         $path = self::convertPath; // move file to convert by default
 
         //get name and path
-        $filetype = exec('file '. $inpath);
+        $filetype = exec('file '. escapeshellarg($inpath));
         if(strpos($filetype, 'MP4') !== false){
             $extension = 'mp4';
             $path = self::uploadPath; //dont move to convert
         }
+        
         foreach (self::extensionMap as $str => $ext) {
             if(strpos($filetype, $str) !== false){
                 $extension = $ext;
                 break;
             }
         }
+
         if(!isset($extension)){
             $this->returnError("Has to be ". implode(', ', array_values(self::extensionMap)) ." but it was " . $filetype);
         }
