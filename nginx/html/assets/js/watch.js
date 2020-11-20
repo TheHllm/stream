@@ -51,12 +51,16 @@ window.onload = function (){
     serverCon = new ServerConnection(name, roomId, chat, userlist, playlist); //TODO: injest video;
 }
 
+let offset;
 function getTime(){
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.open( "GET", "https://worldtimeapi.org/api/timezone/Etc/UTC", false ); // false for synchronous request
-    xmlHttp.send( null );
-    var time = JSON.parse(xmlHttp.responseText);
-    return Date.parse(time.datetime);
+    if(typeof offset === 'undefined'){
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", "time", false ); // false for synchronous request
+        xmlHttp.send( null );
+        offset = xmlHttp.responseText - Date.now();
+    }
+
+    return Date.now() + offset;
 }
 
 function enrichState(state){
