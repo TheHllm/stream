@@ -1,4 +1,4 @@
-# Stream
+# Watch2gether
 A slim web app for watching videos in sync with others.
 ## Installation
 ```
