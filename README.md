@@ -2,7 +2,7 @@
 A slim web app for watching videos in sync with others.
 ## Installation
 ```
-git clone https://github.com/TheHllm/stream.git
+git clone git@github.com:TheHllm/watch2gether.git
 cd stream
 docker-compose up
 ```
