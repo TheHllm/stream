@@ -29,6 +29,7 @@ class Userlist{
         this.username = name;
         this.userNameToElmMap = new Map();
     }
+
     generateUserList(users){
         this.userNameToElmMap.clear();
         this.userListElm.innerHTML = ""; //clear
@@ -50,6 +51,7 @@ class Userlist{
         element.classList.remove("blip");
         void element.offsetWidth; // Trigger a reflow to actually restart the animation
         element.classList.add("blip");
+
     }
 
     blipSelf(){

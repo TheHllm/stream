@@ -10,8 +10,16 @@ class Video{
         container.innerHTML = "";
 
         container.appendChild(this._generateVideoPlayer());
-        this.plyr = new Plyr('#video');
-        
+        this.plyr = new Plyr('#video',{
+            fullscreen: {container: "#outer-container"},
+            invertTime: false, 
+            speed: { selected: 1, options: [1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3,75, 4] },
+            minimumSpeed: 1.5,
+            maximumSpeed: 4,
+          });
+
+
+
         if(!this.plyr.ready){
             this.plyr.on("ready", this._onVideoReady.bind(this));
         }else{
@@ -95,10 +103,23 @@ class Video{
         }
     }
 
+    getIsFullscreen(){
+        return this.plyr.fullscreen.active;
+    }
+
     _onVideoReady(){
-        if(this.disbaled){
+        if(this.disabled){
             return;
         }
+
+        if(this.type == 'yt'){
+            this.ignoreNextStateChange = true;
+            clearTimeout(this.ignoreNextStateChangeResetTimeout);
+            //make an interaction so we get sound
+            this.plyr.elements.container.children[0].children[0].click();
+            this.plyr.elements.container.children[0].children[0].click();
+        }
+
         console.log("i am ready now");
         this.videoReady = true;
         if(this.lastState !== undefined && !(this.lastState.executed && this.lastState.executed === true)){
@@ -128,7 +149,13 @@ class Video{
             videoTag.id = "video";
             videoTag.controls = true;
             videoTag.playsinline = true;
+            
+            try{
+                new URL(this.id); //test if the id is really a 'link'
+                source.setAttribute('src', this.id);
+            }catch{
             source.setAttribute('src', "/uploads/" + this.id);
+            }
             videoTag.appendChild(source);
             return videoTag;
         }

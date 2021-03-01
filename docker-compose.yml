@@ -14,8 +14,8 @@ services:
             - 'dash:/opt/dash:z'
             - './data/uploads:/opt/uploads'
         restart: unless-stopped
-        logging:
-            driver: "none"
+        #logging:
+        #    driver: "none"
         depends_on:
             - nodejs
             - php
@@ -30,6 +30,8 @@ services:
             - 'dash:/opt/dash:z'
             - './data/uploads:/opt/uploads'
             - 'convert:/opt/convert:z'
+        logging:
+            driver: "none"
         networks:
             - backend
 

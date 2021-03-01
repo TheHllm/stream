@@ -1,6 +1,7 @@
 <html>
 <head>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/external/bootstrap.min.css">
+  <!--<link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.css">!-->
   <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/main.css">
   <link rel="manifest" href="/manifest.json">
@@ -10,7 +11,6 @@
     var progList;
     var progDict = new Map();
     function onProgress(e, xhr){
-      //debugger;
       if(typeof progDict.get(xhr) === 'undefined'){
         var elm = document.createElement('li');
         

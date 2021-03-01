@@ -1,12 +1,20 @@
-
-
 function getName(){
     //try to get name form disk
     var dname = window.localStorage.getItem('name');
-    if(dname && !dname.startsWith("User #")){
+    if(dname){
         return dname;
     }else{
-        var n = (prompt("Please enter your name", "User") || "User").trim() + " #" + Math.round(Math.random()*10000);
+        // Only request the names if it isn't saved
+        var request = new XMLHttpRequest();
+        request.open('GET', '/assets/js/first-names.json', false);  // `false` makes the request synchronous
+        request.send(null);
+        var prename = "User";
+        if (request.status === 200) {
+            let ar = JSON.parse(request.responseText);
+            prename = ar[Math.floor(Math.random() * ar.length)];
+        }
+
+        var n = (prompt("Please enter your name", prename) || prename).trim() + " #" + Math.round(Math.random()*10000);
         if(!n.startsWith("User #")){
             window.localStorage.setItem('name', n);
         }
@@ -14,6 +22,12 @@ function getName(){
     return n;
 }
 
+function unfocus(evt) {
+    evt = evt || window.event;
+    if (evt.keyCode == 27) {//27 is the code for escape
+        evt.currentTarget.blur(); 
+    }
+};
 
 function findGetParameter(parameterName) {
     var result = null,
@@ -44,11 +58,14 @@ window.onload = function (){
     //chat
     chat = new Chat(name, document.getElementById('chat-input'), document.getElementById("chat-window"), document.getElementById('chat-form'));
 
+    fullscreen = new FullscreenDisplay(document.getElementById('fullscreenBubble'), document.getElementById('fullscreenText'), document.getElementById("fullscreenBlip"),
+                                        document.getElementById("chat-form-fullscreen"), document.getElementById("chat-input-fullscreen"), chat);
+
     playlist = new Playlist(document.getElementById('playlist'), document.getElementById('playlist-add-form'), document.getElementById('playlist-add-input'), userlist);
 
     //connection
     var roomId = this.findGetParameter('v');
-    serverCon = new ServerConnection(name, roomId, chat, userlist, playlist); //TODO: injest video;
+    serverCon = new ServerConnection(name, roomId, chat, userlist, playlist, fullscreen); //TODO: ingest video;
 }
 
 let offset;
@@ -59,7 +76,6 @@ function getTime(){
         xmlHttp.send( null );
         offset = xmlHttp.responseText - Date.now();
     }
-
     return Date.now() + offset;
 }
 

@@ -1,12 +1,13 @@
 class ServerConnection{
     
-    constructor(name, roomId, _chat, _userlist, _playlist){
+    constructor(name, roomId, _chat, _userlist, _playlist, _fullscreen){
         this.chat = _chat;
         this.name = name;
         this.roomId = roomId;
         this.initialized = false;
         this.userlist = _userlist;
         this.playlist = _playlist
+        this.fullscreen = _fullscreen;
 
         let _this = this;
 
@@ -43,6 +44,7 @@ class ServerConnection{
                         this.playlist.setVideoState(message.state);
                     }
                     this.userlist.blipUser(message.state.lastUpdater);
+                    this.fullscreen.blipUser(message.state.lastUpdater, this.playlist.getIsFullscreen());
                 }else{
                     this.playlist.switchVideo({type: this.playlist.getVideoType(findGetParameter('v')), id: findGetParameter('v')}); 
                     //send own state
@@ -60,6 +62,7 @@ class ServerConnection{
                 }else{
                     this.playlist.setPlaylist(message.playlist);
                     this.userlist.blipUser(message.playlist.lastUpdater);
+                    this.fullscreen.blipUser(message.playlist.lastUpdater, this.playlist.getIsFullscreen());
                 }
             break;
             case 'userlist':
@@ -67,6 +70,7 @@ class ServerConnection{
                 break;
             case "chat":
                 this.chat.onReciveMessage(message.name, message.text);
+                this.fullscreen.displayChat(message.name, message.text, this.playlist.getIsFullscreen());
             break;
         }
     };

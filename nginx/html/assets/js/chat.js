@@ -5,34 +5,40 @@ class Chat{
         this.chatWindow = _chatWindow;
         this.chatFrom = _chatFrom;
 
-        let t = this;
-        this.chatFrom.addEventListener('submit', function (e){
+        this.chatFrom.addEventListener('submit', (function (e){
             e.preventDefault();
-            var msg = t.chatInput.value;
+            var msg = this.chatInput.value;
         
-            if(msg){
-                var data = JSON.stringify({
-                    type: "chat",
-                    text: msg
-                });
-                
-                serverCon.ws.send(data);
-                t.chatInput.value = "";
-        
-                t.chatWindow.appendChild(t._generateOutgoingChatMessage(msg));
-                t.scrollChatDown();
-            }
+            this.sendChat(msg);
+            this.chatInput.value = "";
             return false;
-        });
+        }).bind(this));
 
 
         this._beeper = new Beeper();
     }
+
+    sendChat(msg){
+        if(msg){
+            var data = JSON.stringify({
+                type: "chat",
+                text: msg
+            });
+            
+            var audio = new Audio('/assets/audio/notify1.m4r');
+            audio.play();
+            serverCon.ws.send(data);
+    
+            this.chatWindow.appendChild(this._generateOutgoingChatMessage(msg));
+            this.scrollChatDown();
+        }
+    }
+
     scrollChatDown(){
         this.chatWindow.scrollTop = this.chatWindow.scrollHeight;
     }
     onReciveMessage(name, text){
-        this._beeper.beep(30);
+        this._beeper.beep();
         //scroll down
         this.chatWindow.scrollTop = this.chatWindow.scrollHeight;
         this.chatWindow.appendChild(this._generateIncomingChatMessage(name, text));
@@ -55,7 +61,7 @@ class Chat{
         body.appendChild(message);
     
         var media = document.createElement("div");
-        media.classList.add("align-self-start", "mw-90", "media", "mb-3");
+        media.classList.add("align-self-start", "mw-90", "media");
         media.appendChild(body);
     
         return media;
@@ -79,7 +85,7 @@ class Chat{
     
     
         var media = document.createElement("div");
-        media.classList.add("align-self-end", "mw-90", "ml-5", "media", "mb-3", "bg-primary", "rounded");
+        media.classList.add("align-self-end", "mw-90", "ml-5", "media", "bg-primary", "rounded");
         media.appendChild(body);
     
         return media;
@@ -87,18 +93,8 @@ class Chat{
 }
 
 class Beeper{
-    constructor(){
-        this.atx = new AudioContext();
-        this.o = this.atx.createOscillator();
-        this.o.frequency.value = 2218;
-        this.g = this.atx.createGain();
-        this.g.gain.value = 0.1;
-        this.o.connect(this.g);
-        this.o.start(0);
-    }
-    beep(time){
-        this.g.connect(this.atx.destination);
-        let t = this;
-        setTimeout(function (){t.g.disconnect(t.atx.destination);}, time);
+    beep(){
+        var audio = new Audio('/assets/audio/notify.m4r');
+        audio.play();
     }
 }

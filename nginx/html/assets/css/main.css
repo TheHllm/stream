@@ -16,6 +16,81 @@ body{
     }
 }
 
+@keyframes show{
+    0% {
+        background-color: #00B3FF;
+        opacity: 0;
+        max-height: 0;
+        padding: 0;
+    }
+    10% {
+        max-height: 70px;
+        opacity: 1.0;
+        padding: 0.5rem 1rem;
+    }
+    80% {
+        opacity: 1.0;
+        max-height: 70px;
+        padding: 0.5rem 1rem;
+    }
+    100% {
+        background-color: #f8f9fa;
+        max-height: 0;
+        opacity: 0;
+        padding: 0;
+    }
+}
+
+@keyframes chat{
+    0% {
+        background-color: #00B3FF;
+        opacity: 0;
+        margin-top: 0;
+        max-height: 0;
+        max-width: 0;
+        padding: 0;
+    }
+    5% {
+        opacity: 1.0;
+        max-height: 70px;
+        margin-top: 5px;
+        max-width: 25vw;
+        padding: 0.5rem 1rem;
+    }
+    10% {
+        background-color: #f8f9fa;
+        opacity: 1.0;
+        max-height: 70px;
+        margin-top: 5px;
+        max-width: 25vw;
+        padding: 0.5rem 1rem;
+    }
+    90% {
+        background-color: #f8f9fa;
+        opacity: 1.0;
+        max-height: 70px;
+        margin-top: 5px;
+        max-width: 25vw;
+        padding: 0.5rem 1rem;
+    }
+    99% {
+        max-width: 25vw;
+    }
+    100% {
+        background-color: #f8f9fa;
+        opacity: 0;
+        margin-top: 0;
+        max-height: 0;
+        max-width: 0;
+        padding: 0;
+    }
+}
+
+.chat-card {
+    overflow: hidden;
+    animation: chat 4s both;
+}
+
 .blip{
     animation: blip 1s;
 }
@@ -35,4 +110,71 @@ body{
 [data-toggle="collapse"].collapsed .fa:before {
     content: "\f078";
 }
-  
+
+#outer-container {
+    height: 41.5vw;
+}
+
+.change-card {
+    position: absolute;
+    right: 50px;
+    top: 50px;
+    z-index: 1000;
+}
+
+.change-card * {
+    z-index: 1000;
+}
+
+#fullscreenBlip {
+    max-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#fullscreenBlip.show {
+    animation: show 2s forwards;
+}
+
+
+#chat-form-fullscreen {
+    background: transparent !important;
+}
+
+#chat-form-fullscreen .input-group {
+    transform: scaleY(0);
+    transition: transform 0.25s;
+    transform-origin: top;
+}
+
+#chat-form-fullscreen:hover .input-group, #chat-form-fullscreen.open .input-group, .input-group:focus-within {
+    transform: scaleY(1) !important;
+    
+    top: 0%;
+}
+
+.chat-send {
+    background-color: #f8f9fa;
+    border-radius: .25rem;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+#chat-input-fullscreen {
+    z-index: 1001;
+}
+
+@keyframes chat-show {
+    from {
+        margin-bottom: -100%;
+    }
+
+    to {
+        margin-bottom: 1rem;
+    }
+}
+
+#chat-window > div {
+    /*animation: chat-show 0.25s both;*/
+    margin-bottom: 1rem;
+}

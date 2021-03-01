@@ -16,7 +16,7 @@ while true; do
     for f in *; do 
         [ -f "$f" ] || continue
         echo Starting $f
-        ffmpeg -loglevel quiet -y -i "$f"  "/opt/tmp/${f%.*}.mp4"
+        ffmpeg -loglevel quiet -y -i "$f" -c:v h264 "/opt/tmp/${f%.*}.mp4"
         mv "/opt/tmp/${f%.*}.mp4" "/opt/uploads/${f%.*}.mp4"
         chmod 777 "/opt/uploads/${f%.*}.mp4"
         rm "$f"

@@ -19,18 +19,19 @@ class Playlist{
             e.preventDefault(); //stop the submit
 
             if(_this.addInput.value) { //ony do something if we have a real value to send
-                
-                _this.playlist.videos.push({
-                    type: _this.getVideoType(_this.addInput.value),
-                    id:_this.addInput.value,
-                    starttime: Date.now(),
-                    time: 0,
-                    playbackRate: 1,
-                    paused: false });
-
+                _this.addInput.value.split(' ').reverse().forEach(line => {
+                    _this.playlist.videos.push({
+                        type: _this.getVideoType(line),
+                        id:line,
+                        starttime: Date.now(),
+                        time: 0,
+                        playbackRate: 1,
+                        paused: false });
+    
+                    
+                });
                 _this.addInput.value = "";
                 $('#playlistAddModal').modal('hide');
-
                 //re render
                 _this._generatePlaylist();
                 _this.userlist.blipSelf();
@@ -156,6 +157,12 @@ class Playlist{
         this.sendCurrentPlaylist();
     }
 
+    getIsFullscreen(){
+        if(!this.video)
+            return false;
+        return this.video.getIsFullscreen();
+    }
+
     _nextVideo(){
         if(this.ignoreNextEnded){
             return;
@@ -212,7 +219,7 @@ class Playlist{
         }
     }
 
-    _generateVideoPlayer(video){
+    /*_generateVideoPlayer(video){
         if(video.type == "yt"){
             var id = video.id.match(ytIdRegex)[1];
 
@@ -232,9 +239,16 @@ class Playlist{
             videoTag.id = "video";
             videoTag.controls = true;
             videoTag.playsinline = true;
-            source.setAttribute('src', "/uploads/" + video.id);
+            
+            let url;
+            try{
+                url = new URL(video.id);
+                source.setAttribute('src', video.id);
+            }catch{
+                source.setAttribute('src', "/uploads/" + video.id);
+            }
             videoTag.appendChild(source);
             return videoTag;
         }
-    }
+    }// Seems to be unused*/
 }

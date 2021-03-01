@@ -59,9 +59,9 @@ class FileSaver{
         }
 
         if($redirect){
-            header("Location: watch?v=" . $fileId);
+            header("Location: watch?v=" . $hash);
         }
-        return $fileId;
+        return $hash;
     }
 }
 ?>
