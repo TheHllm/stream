@@ -1,5 +1,7 @@
 
-function generateUsernameSpan(name){
+var nameInput;
+
+function generateUsernameSpan(name, isSelf = false){
     //split into username and id
     var split = name.split('#');
     var id = "#" + split.pop();
@@ -20,7 +22,42 @@ function generateUsernameSpan(name){
     div.appendChild(uspan);
     div.appendChild(ispan);
 
+    if(isSelf){
+        var cButton = document.createElement('button');
+        cButton.type = 'button';
+        cButton.classList.add('btn', 'btn-outline-secondary', 'float-right');
+        cButton.innerHTML = '<i class="far fa-edit"></i>';
+        cButton.onclick = function(){
+            cButton.innerHTML = '<i class="far fa-check-square"></i>';
+            div.removeChild(uspan);
+            nameInput = document.createElement('input');
+            nameInput.classList.add('nameEdit');
+            nameInput.value = name.split('#')[0].trim();;
+
+            nameInput.addEventListener("keyup", function(e) {
+                event.preventDefault();
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    setName();
+                }
+            });
+
+            div.prepend(nameInput);
+
+            nameInput.focus();
+            cButton.onclick = setName;
+        };
+
+        div.appendChild(cButton);
+    }
+
     return div;
+}
+
+function setName(){
+    let name = nameInput.value.trim() + " #" + Math.round(Math.random()*10000);
+    window.localStorage.setItem('name', name);
+
+    location.reload();
 }
 
 class Userlist{
@@ -36,7 +73,7 @@ class Userlist{
         for(var i = 0; i < users.length; i++){
             var userElm = document.createElement('li');
             userElm.classList.add("list-group-item");
-            userElm.appendChild(generateUsernameSpan(users[i]));
+            userElm.appendChild(generateUsernameSpan(users[i], users[i] == this.username));
             
             this.userListElm.appendChild(userElm);
             this.userNameToElmMap.set(users[i], userElm);
