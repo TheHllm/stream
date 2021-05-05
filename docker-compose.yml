@@ -3,24 +3,22 @@ version: '3.3'
 services:
 
     nginx:
-        build:
-           context: ./nginx
-           dockerfile: Dockerfile
+        image: nginx
         ports:
             - '1935:1935'
             - '127.0.0.1:1234:80'
         volumes:
             - './nginx/html:/usr/local/nginx/html'
+            - './nginx/nginx.conf:/etc/nginx/nginx.conf'
             - 'dash:/opt/dash:z'
             - './data/uploads:/opt/uploads'
         restart: unless-stopped
-        #logging:
-        #    driver: "none"
         depends_on:
             - nodejs
             - php
         networks:
             - backend
+        restart: unless-stopped
 
     php:
         image: php:7-fpm
@@ -34,6 +32,7 @@ services:
             driver: "none"
         networks:
             - backend
+        restart: unless-stopped
 
     nodejs:
         build:
@@ -41,6 +40,7 @@ services:
             dockerfile: Dockerfile
         networks:
             - backend
+        restart: unless-stopped
     
     alpine:
         build:
@@ -50,9 +50,7 @@ services:
             - 'dash:/opt/dash'
             - './data/uploads:/opt/uploads'
             - 'convert:/opt/convert:z'
-        restart: "no"
-        logging:
-            driver: "json-file"
+        restart: unless-stopped
 
 volumes:
     dash:
