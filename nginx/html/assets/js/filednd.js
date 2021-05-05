@@ -5,20 +5,40 @@ function createDropzone(uploadUrl, onProgress, onLoad){
     form.method = "POST";
     form.enctype = "multipart/form-data";
 
+    let group = document.createElement("div");
+    group.classList.add("input-group");
+
+    let file = document.createElement("div");
+    file.classList.add("custom-file");
+
     var finput = document.createElement('input');
     finput.type = "file";
-    finput.name= "file";
-    finput.classList.add('btn')
+    finput.name = "file";
+    finput.id = "file";
+    finput.classList.add('custom-file-input')
 
-    form.appendChild(finput);
+    file.appendChild(finput);
+
+    let flabel = document.createElement("label");
+    flabel.classList.add("custom-file-label");
+    flabel.for = "file";
+    flabel.innerText = "Choose file";
+
+    file.appendChild(flabel);
+
+    group.appendChild(file);
+
+    let groupAppend = document.createElement("div");
+    groupAppend.classList.add("input-group-append");
 
     var sinput = document.createElement('input');
     sinput.type="submit";
     sinput.value="Upload";
     sinput.classList.add('btn', 'btn-success')
 
-    form.appendChild(sinput);
-    
+    groupAppend.appendChild(sinput);
+    group.appendChild(groupAppend);
+    form.appendChild(group);
     elm.appendChild(form);
 
     elm.addEventListener('dragover', function (e) {

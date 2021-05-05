@@ -2,12 +2,44 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="color-scheme" content="dark light">
+    <link rel="stylesheet" href="/assets/css/theme.light.css">
+    <link rel="stylesheet" href="/assets/css/theme.dark.css">
     <link rel="stylesheet" href="/assets/external/plyr.css" />
-    <link rel="stylesheet" href="/assets/external/bootstrap.min.css">
-    <!--<link rel="stylesheet" href="https://bootswatch.com/4/darkly/bootstrap.css">!-->
     <link href="/assets/external/fa/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
     <link rel="manifest" href="/manifest.json">
+    
+    <script>
+    let pref = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; // true if the user prefers dark mode
+    let ls = window.localStorage.getItem('dark-theme');
+    let darkThemeEnabled = ls !== null ? ls === "true" : pref;
+
+    function initTheme() {
+        if (darkThemeEnabled) {
+            document.styleSheets[0].disabled = true;
+            document.styleSheets[1].disabled = false;
+        } else {
+            document.styleSheets[0].disabled = false;
+            document.styleSheets[1].disabled = true;
+        }
+    }
+
+    initTheme();
+
+    function changeTheme() {
+        darkThemeEnabled = !darkThemeEnabled;
+        window.localStorage.setItem('dark-theme', darkThemeEnabled);
+        initTheme();
+    }
+
+    let darkSwitch
+    window.addEventListener("load", () => {
+        darkSwitch = document.getElementById('darkSwitch');
+        darkSwitch.checked = darkThemeEnabled;
+        darkSwitch.addEventListener('change', changeTheme);
+    });
+    </script>
     
     <script src="/assets/js/watch.js"> </script>
     <script src="/assets/js/socket.js"> </script>
@@ -27,7 +59,21 @@
 </head>
 
 <body>
-    <div class="container-fluid">
+    <div class="container-fluid">        
+        <div class="row">
+            <div class="col-12 mb-2">
+                <span id="name"></span>
+                <div class="float-right">
+                    <div class="custom-control custom-switch d-flex align-items-center justify-content-center">
+                        <input class="custom-control-input me-1" type="checkbox" id="darkSwitch">
+                        <label class="custom-control-label darkSwitchLabel" for="darkSwitch">
+                            <span><i class="bi bi-sun" title="Switch to light mode"></i></span>
+                            <span><i class="bi bi-moon-fill" title="Switch to dark mode"></i></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <div class="row">
             <div class="col h-100 mb-3">
@@ -44,7 +90,7 @@
                             <div class="input-group">
                                 <input type="text" id="chat-input-fullscreen" placeholder="Message" class="form-control" onkeydown=unfocus()>
                                 <div class="input-group-append">
-                                    <button type="submit" class="btn btn-link chat-send"> <i class="fa fa-paper-plane"></i></button>
+                                    <button type="submit" class="btn btn-primary chat-send"> <i class="fa fa-paper-plane"></i></button>
                                 </div>
                             </div>
                         </form>
@@ -68,7 +114,7 @@
                             <ul id="user-list" class="list-group collapse show"></ul>
                         </div>
                     </div>
-                    <div class="col-12 mh-100">
+                    <div class="col-12 mh-100 mb-3">
                         <div class="card mh-100">
                             <div class="card-header">
                                 Chat
@@ -77,19 +123,34 @@
                                 </button>
 							</div>
 							<div id="chat-collapse" class="collapse show" >
-								<div class="card-body">
-									<div id="chat-window" class="text-break bg-white d-flex flex-column bd-highlight mb-3 mh-100" style="max-height: 23em !important; overflow-x: hidden; overflow-y: auto !important;"></div>
+								<div class="card-body pr-2">
+									<div id="chat-window" class="pr-2 text-break d-flex flex-column bd-highlight mb-3 mh-100" style="max-height: 23em !important; overflow-x: hidden; overflow-y: auto !important;"></div>
 
-									<form id="chat-form" class="bg-light">
-										<div class="input-group">
+									<form id="chat-form">
+										<div class="input-group pr-2">
 											<input type="text" id="chat-input" placeholder="Message" class="form-control">
 											<div class="input-group-append">
-												<button id="chat-send" type="submit" class="btn btn-link"> <i class="fa fa-paper-plane"></i></button>
+												<button id="chat-send" type="submit" class="btn btn-primary"> <i class="fa fa-paper-plane"></i></button>
 											</div>
 										</div>
 									</form>
 								</div>
 							</div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">Room
+                                    <span class="d-none d-xl-inline">&nbsp;link</span>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control bg-light" readonly id="room" value="<?php echo (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";?>">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" id="roomButton" type="button"
+                                    data-container="body" data-toggle="popover" data-placement="top" data-content="Copied!"
+                                ><i class="far fa-copy"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>

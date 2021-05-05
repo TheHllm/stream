@@ -1,0 +1,26 @@
+@keyframes blip{
+    from {
+        background-color: var(--primary);
+        border-color: var(--primary);
+    }
+    to {
+        background-color: #2f2f2f;
+    }
+}
+
+.chat-send {
+    background-color: #375a7f;
+}
+
+.chat-card .text-muted {
+    color: #222222!important;
+}
+
+#chat-window .text-muted {
+    color: #222222!important;
+}
+
+.custom-file-label::before {
+    color: #b1b1b1;
+    background-color: #515151;
+}

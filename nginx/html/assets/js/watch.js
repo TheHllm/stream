@@ -29,8 +29,8 @@ function unfocus(evt) {
     }
 };
 
-function findGetParameter(parameterName) {
-    var result = null,
+function _findGetParameter(parameterName) {
+    let result = null,
         tmp = [];
     location.search
         .substr(1)
@@ -40,6 +40,15 @@ function findGetParameter(parameterName) {
           if (tname === parameterName) result = decodeURIComponent(item.substr(item.indexOf('=')+1));
         });
     return result;
+}
+
+function getRoomId(){
+    let gp = _findGetParameter("v");
+    if(gp){
+        return gp;
+    }else{
+        return decodeURIComponent(window.location.pathname.substring(7));
+    }
 }
 
 
@@ -64,15 +73,47 @@ window.onload = function (){
     playlist = new Playlist(document.getElementById('playlist'), document.getElementById('playlist-add-form'), document.getElementById('playlist-add-input'), userlist);
 
     //connection
-    var roomId = this.findGetParameter('v');
+    var roomId = this.getRoomId();
     serverCon = new ServerConnection(name, roomId, chat, userlist, playlist, fullscreen); //TODO: ingest video;
+
+    let room = document.getElementById("room");
+    room.onclick = () => {
+        room.select();
+    }
+
+    document.getElementById("roomButton").onclick = () => {
+        room.select();
+        document.execCommand('copy');
+        $("#roomButton").popover("show");
+        setTimeout(() => {
+            $('#roomButton').popover('hide');
+        }, 1000);
+    }
+}
+
+function selectText(node) {
+    node = document.getElementById(node);
+
+    if (document.body.createTextRange) {
+        const range = document.body.createTextRange();
+        range.moveToElementText(node);
+        range.select();
+    } else if (window.getSelection) {
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    } else {
+        console.warn("Could not select text in node: Unsupported browser.");
+    }
 }
 
 let offset;
 function getTime(){
     if(typeof offset === 'undefined'){
         var xmlHttp = new XMLHttpRequest();
-        xmlHttp.open( "GET", "time", false ); // false for synchronous request
+        xmlHttp.open( "GET", "/time", false ); // false for synchronous request
         xmlHttp.send( null );
         offset = xmlHttp.responseText - Date.now();
     }

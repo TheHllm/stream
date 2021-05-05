@@ -58,6 +58,8 @@ class FileSaver{
             }
         }
 
+        $hash = $hash . '.mp4';
+        
         if($redirect){
             header("Location: watch?v=" . $hash);
         }

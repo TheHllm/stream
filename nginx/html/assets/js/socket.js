@@ -46,7 +46,7 @@ class ServerConnection{
                     this.userlist.blipUser(message.state.lastUpdater);
                     this.fullscreen.blipUser(message.state.lastUpdater, this.playlist.getIsFullscreen());
                 }else{
-                    this.playlist.switchVideo({type: this.playlist.getVideoType(findGetParameter('v')), id: findGetParameter('v')}); 
+                    this.playlist.switchVideo({type: this.playlist.getVideoType(getRoomId()), id: getRoomId()}); 
                     //send own state
                     this.sendVideoState(this.playlist.video.getVideoState());
                 }
@@ -54,7 +54,7 @@ class ServerConnection{
             break;
             case 'playlist':
                 if(message.playlist.index == -1 || (message.playlist.videos && message.playlist.videos.length == 0)){// Session isn't initialized
-                    message.playlist.videos.push({type: this.playlist.getVideoType(findGetParameter('v')), id: findGetParameter('v')});
+                    message.playlist.videos.push({type: this.playlist.getVideoType(getRoomId()), id: getRoomId()});
                     message.playlist.index = 0;
                     this.playlist.setPlaylist(message.playlist);
                     this.playlist.setVideoState(this.playlist.video.getVideoState(), false);
