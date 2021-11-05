@@ -12,7 +12,7 @@ class ServerConnection{
         let _this = this;
 
         //actual conection
-        this.ws = new WebSocket("wss://stream.hllm.tk/wss");
+        this.ws = new WebSocket(window.location.origin.replace('http', 'ws') + "/wss");
         this.ws.onopen = function (){
             var msg = JSON.stringify({
                 type: "join",
